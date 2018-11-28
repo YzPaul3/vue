@@ -45,6 +45,8 @@ export function proxy (target: Object, sourceKey: string, key: string) {
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
 
+
+// 初始化实例状态，包括props，methods，data，computedData，watcher
 export function initState (vm: Component) {
   vm._watchers = []
   const opts = vm.$options
@@ -109,6 +111,8 @@ function initProps (vm: Component, propsOptions: Object) {
   toggleObserving(true)
 }
 
+
+// 初始化data的时候代理了data的属性访问到实例上
 function initData (vm: Component) {
   let data = vm.$options.data
   data = vm._data = typeof data === 'function'

@@ -137,10 +137,14 @@ export function mountComponent (
   hydrating?: boolean
 ): Component {
   vm.$el = el
+  // 备注！！！：vue 2.0版本 所有组件都要转换成render方法，（template/el => render） 通过调用compileToFunction方法实现
   if (!vm.$options.render) {
+    // 如果没有render方法
     vm.$options.render = createEmptyVNode
     if (process.env.NODE_ENV !== 'production') {
       /* istanbul ignore if */
+      // 没有render方法，但是有el或template 提示需要预编译~~~
+      // 目前是runtime-only版本，你最好有有vueloader帮你预编译，或者使用runtime-compliler版本哦
       if ((vm.$options.template && vm.$options.template.charAt(0) !== '#') ||
         vm.$options.el || el) {
         warn(
@@ -150,6 +154,7 @@ export function mountComponent (
           vm
         )
       } else {
+        // 即没有render，也没有template
         warn(
           'Failed to mount component: template or render function not defined.',
           vm
@@ -169,17 +174,21 @@ export function mountComponent (
       const endTag = `vue-perf-end:${id}`
 
       mark(startTag)
+      // _render方法生成Vnode
       const vnode = vm._render()
       mark(endTag)
       measure(`vue ${name} render`, startTag, endTag)
 
       mark(startTag)
+      // 用_update方法 将vnode转化成dom，更新dom
       vm._update(vnode, hydrating)
       mark(endTag)
       measure(`vue ${name} patch`, startTag, endTag)
     }
   } else {
     updateComponent = () => {
+      // _render方法生成Vnode
+      // 用_update方法 将vnode转化成dom，更新dom
       vm._update(vm._render(), hydrating)
     }
   }
@@ -187,6 +196,10 @@ export function mountComponent (
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined
+
+  // 渲染watcher
+  // 1：在init初始化时会执行回调函数（updateComnponent）更新dom
+  // 2：在vm实例中检测到数据发生变化的时候执行回调函数，更新dom
   new Watcher(vm, updateComponent, noop, {
     before () {
       if (vm._isMounted) {
@@ -198,6 +211,7 @@ export function mountComponent (
 
   // manually mounted instance, call mounted on self
   // mounted is called for render-created child components in its inserted hook
+  // 此时实例已经初次mount挂载完成
   if (vm.$vnode == null) {
     vm._isMounted = true
     callHook(vm, 'mounted')

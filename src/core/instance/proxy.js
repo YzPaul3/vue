@@ -24,6 +24,8 @@ if (process.env.NODE_ENV !== 'production') {
     )
   }
 
+  // 以 _ 或 $ 开头的属性 不会 被 Vue 实例代理，因为它们可能和 Vue 内置的属性、API 方法冲突。
+  // 你可以使用例如 vm.$data._property 的方式访问这些属性。
   const warnReservedPrefix = (target, key) => {
     warn(
       `Property "${key}" must be accessed with "$data.${key}" because ` +
@@ -52,11 +54,14 @@ if (process.env.NODE_ENV !== 'production') {
     })
   }
 
+  // 在查看vm实例是否拥有某个属性时会触发，提示开发者
   const hasHandler = {
     has (target, key) {
       const has = key in target
+      // isAllowed = 属性名在global特殊属性中，或者属性在vm实例上不存在且属性名以 _ 开头
       const isAllowed = allowedGlobals(key) ||
         (typeof key === 'string' && key.charAt(0) === '_' && !(key in target.$data))
+      // 属性不存在，且 属性名不在global特殊属性中 或 没有以 _ 开头
       if (!has && !isAllowed) {
         if (key in target.$data) warnReservedPrefix(target, key)
         else warnNonPresent(target, key)
@@ -65,6 +70,8 @@ if (process.env.NODE_ENV !== 'production') {
     }
   }
 
+  // getHandler方法主要是针对读取代理对象的某个属性时进行的操作。当访问的属性不是string类型或者属性值在被代理的对象上不存在，则抛出错误提示，否则就返回该属性值。
+  // 在开发者错误调用vm属性时，提示开发者
   const getHandler = {
     get (target, key) {
       if (typeof key === 'string' && !(key in target)) {
@@ -76,6 +83,7 @@ if (process.env.NODE_ENV !== 'production') {
   }
 
   initProxy = function initProxy (vm) {
+    // 判断当前浏览器是否支持proxy，对对象访问进行劫持
     if (hasProxy) {
       // determine which proxy handler to use
       const options = vm.$options

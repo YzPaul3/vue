@@ -48,6 +48,7 @@ const componentVNodeHooks = {
         vnode,
         activeInstance
       )
+      // child 是一个vm实例
       child.$mount(hydrating ? vnode.elm : undefined, hydrating)
     }
   },
@@ -113,6 +114,7 @@ export function createComponent (
 
   // plain options object: turn it into a constructor
   if (isObject(Ctor)) {
+    // 返回了一个继承了父类的子类
     Ctor = baseCtor.extend(Ctor)
   }
 
@@ -187,6 +189,8 @@ export function createComponent (
 
   // return a placeholder vnode
   const name = Ctor.options.name || tag
+  // 构造一个vnode 第七个参数是componentOptions参数，传入了该子类的构造函数 Ctor
+  // 会在使用vnode构造vm实例的时候用到，在vnode的hook上（init）
   const vnode = new VNode(
     `vue-component-${Ctor.cid}${name ? `-${name}` : ''}`,
     data, undefined, undefined, undefined, context,
@@ -205,6 +209,7 @@ export function createComponent (
   return vnode
 }
 
+// 将vnode生成为一个vm实例
 export function createComponentInstanceForVnode (
   vnode: any, // we know it's MountedComponentVNode but flow doesn't
   parent: any, // activeInstance in lifecycle state
@@ -220,6 +225,7 @@ export function createComponentInstanceForVnode (
     options.render = inlineTemplate.render
     options.staticRenderFns = inlineTemplate.staticRenderFns
   }
+  // vnode componentOptions 属性上的构造器
   return new vnode.componentOptions.Ctor(options)
 }
 

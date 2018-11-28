@@ -30,6 +30,7 @@ export function initExtend (Vue: GlobalAPI) {
       validateComponentName(name)
     }
 
+    // 在调用这个方法时会执行Vue.prototype._init方法，执行initInternalComponent
     const Sub = function VueComponent (options) {
       this._init(options)
     }

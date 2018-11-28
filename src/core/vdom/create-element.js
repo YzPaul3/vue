@@ -33,6 +33,7 @@ export function createElement (
   normalizationType: any,
   alwaysNormalize: boolean
 ): VNode | Array<VNode> {
+  // 参数判断，入参前移   此时认为传入的第三个参数是children 【数组类型或基本数据类型】
   if (Array.isArray(data) || isPrimitive(data)) {
     normalizationType = children
     children = data
@@ -51,6 +52,7 @@ export function _createElement (
   children?: any,
   normalizationType?: number
 ): VNode | Array<VNode> {
+  // 判断data是否是响应式的（存在属性__ob__）
   if (isDef(data) && isDef((data: any).__ob__)) {
     process.env.NODE_ENV !== 'production' && warn(
       `Avoid using observed data object as vnode data: ${JSON.stringify(data)}\n` +
@@ -67,7 +69,7 @@ export function _createElement (
     // in case of component :is set to falsy value
     return createEmptyVNode()
   }
-  // warn against non-primitive key
+  // warn against non-primitive key 属性key 必须是基础类型
   if (process.env.NODE_ENV !== 'production' &&
     isDef(data) && isDef(data.key) && !isPrimitive(data.key)
   ) {
@@ -80,6 +82,7 @@ export function _createElement (
     }
   }
   // support single function children as default scoped slot
+  // 处理slot逻辑
   if (Array.isArray(children) &&
     typeof children[0] === 'function'
   ) {
@@ -87,6 +90,8 @@ export function _createElement (
     data.scopedSlots = { default: children[0] }
     children.length = 0
   }
+
+  // 将children 一维化为VNode 数组
   if (normalizationType === ALWAYS_NORMALIZE) {
     children = normalizeChildren(children)
   } else if (normalizationType === SIMPLE_NORMALIZE) {
@@ -97,7 +102,7 @@ export function _createElement (
     let Ctor
     ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag)
     if (config.isReservedTag(tag)) {
-      // platform built-in elements
+      // platform built-in elements 是html原生保留标签
       vnode = new VNode(
         config.parsePlatformTagName(tag), data, children,
         undefined, undefined, context
